@@ -1,16 +1,13 @@
 /**
  *
- * Parse file name
+ * Parse file & name
  *
  * @param  {string} str
  */
 const parseFileName = (str) => {
   const k = str.split('=');
-  const a = k[0].trim();
   const b = JSON.parse(k[1].trim());
-  const o = {};
-  Object.defineProperty(o, a, { value: b, writable: true, enumerable: true, configurable: true });
-  return o;
+  return b;
 };
 
 /**
@@ -21,8 +18,11 @@ const parseFileName = (str) => {
  */
 const processPart = (part) => {
   const header = part.header.split(';');
-  const file = parseFileName(header[2]);
+  const filename = parseFileName(header[2]);
+  const name = parseFileName(header[1]);
   const contentType = part.info.split(':')[1].trim();
+  const file = { filename, name };
+  Object.defineProperty(file, 'type', { value: contentType, writable: true, enumerable: true, configurable: true });
   Object.defineProperty(file, 'type', { value: contentType, writable: true, enumerable: true, configurable: true });
   Object.defineProperty(file, 'data', { value: Buffer.from(part.part), writable: true, enumerable: true, configurable: true });
   return file;
@@ -47,6 +47,7 @@ const processPart = (part) => {
  *  {
  *    filename: 'ca.pem',
  *    type: 'application/x-x509-ca-cert',
+ *    name: 'cert'
  *    data: <Buffer 41 41 41 41 42 42 42 42>
  *  }
  * ]
